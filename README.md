@@ -1,2 +1,2 @@
-# Brand-Value-and-Company-Performance
+# Brand Value and Company Performance
 The hypothesis of the research is that companies with great brand value generate positive stock returns and show better performance on the market because marketing activities are reflected in stock prices and on the company’s returns. I used the main performance measures that many investors are looking at before investing in the company. These are - ​ROI, P/E​, ​Market-to-book value, Earnings per Share, ROE. For checking my hypothesis I will use popular companies with well-established brands. That are Apple, Amazon, IBM, Google, Microsoft, McDonald’s, Starbucks.
