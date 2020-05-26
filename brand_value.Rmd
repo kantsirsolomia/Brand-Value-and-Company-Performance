@@ -1,0 +1,311 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library("readxl")
+library(corrplot)
+library("plm")
+library("lmtest")
+library(car)
+```
+
+```{r}
+aapl <- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'AAPL' , range = cell_cols("A:G"))
+show(aapl)
+
+strbx <- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'STRBCKS' , range = cell_cols("A:G"))
+show(strbx)
+
+amzn <- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'AMZN' , range = cell_cols("A:G"))
+show(amzn )
+
+ibm<- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'IBM' , range = cell_cols("A:G"))
+show(ibm )
+
+goog<- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'GOGL' , range = cell_cols("A:G"))
+show(goog)
+
+mcrsft <- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'MCRSFT' , range = cell_cols("A:G"))
+show(mcrsft)
+
+mcdon <- read_excel("/Users/solomiakantsir/Desktop/finance_brand/Brand_values.xlsx", sheet= 'MCD' , range = cell_cols("A:G"))
+show(mcdon )
+```
+
+
+
+```{r}
+#Apple
+M<-cor(data.frame(value=aapl$`Value (in $m)`  ,
+                  p.b = aapl$`P/B`,
+                  p.e= aapl$`P/E`,
+                  roe  =aapl$ROE,
+                  eps = aapl$EPS
+                  ))
+head(round(M,2))
+corrplot.mixed(M, lower.col = "black", number.cex = .7)
+```
+
+
+
+```{r}
+#Starbucks
+strbx.cor<-cor(data.frame(value=strbx$`Value (in $m)`,
+                 roi= strbx$`ROI (in %)`,
+                 eps=strbx$EPS,
+                 p.b = strbx$`P/B`, p.e= strbx$`P/E`, roe = strbx$ROE))
+head(round(strbx.cor,2))
+corrplot.mixed(strbx.cor, lower.col = "black", number.cex = .7)
+```
+
+```{r}
+#Amazon
+amzn.cor<-cor(data.frame(value=amzn$`Value (in $m)`,
+                 roi= amzn$`ROI (in %)`,
+                 eps=amzn$EPS,
+                 roe= amzn$`P/B`, p.b = amzn$`P/B`, p.e = amzn$`P/E`))
+head(round(amzn.cor,2))
+corrplot.mixed(amzn.cor, lower.col = "black", number.cex = .7)
+```
+
+```{r}
+#IBM
+ibm.cor<-cor(data.frame(value=ibm$`Value (in $m)`,
+                 roi= ibm$`ROI (in %)`,
+                 eps=ibm$EPS,
+                 p.b= ibm$`P/B`, p.e = ibm$`P/E`, roe= ibm$ROE))
+head(round(ibm.cor,2))
+corrplot.mixed(ibm.cor, lower.col = "black", number.cex = .7)
+
+```
+```{r}
+#Google
+goog.cor<-cor(data.frame(value=goog$`Value (in $m)`,
+                 eps=goog$EPS, p.e = goog$`P/E`, p.b= goog$`P/B`, roe = goog$ROE
+                ))
+head(round(goog.cor,2))
+corrplot.mixed(goog.cor, lower.col = "black", number.cex = .7)
+
+```
+
+
+```{r}
+#Microsoft
+mcrsft.cor<-cor(data.frame(value=mcrsft$`Value (in $m)`,
+                 eps = mcrsft$EPS,
+                 pe = mcrsft$`P/E`,
+                 pb = mcrsft$`P/B`,  roe=mcrsft$ROE
+                ))
+head(round(mcrsft.cor,2))
+corrplot.mixed(mcrsft.cor, lower.col = "black", number.cex = .7)
+```
+
+
+```{r}
+#McDon
+mcdon.cor <-cor(data.frame(value=mcdon$`Value (in $m)`,
+                          roi = mcdon$`ROI (in %)`,
+                 eps = mcdon$EPS,
+                 pe = mcdon$`P/E`,
+                 pb = mcdon$`P/B`, roe=mcdon$ROE
+                ))
+head(round(mcdon.cor,2))
+corrplot.mixed(mcdon.cor, lower.col = "black", number.cex = .7)
+```
+
+Step 2. Regressions
+```{r}
+appl.lm <- lm(aapl$EPS~ aapl$`Value (in $m)`)
+summary(appl.lm)
+
+#plotting 
+plot( aapl$`Value (in $m)`, aapl$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Apple", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(appl.lm)
+
+#checking for heteroskedasticity
+bptest(appl.lm)
+#robust OLS to get rid of heteroskedasticity
+coeftest(appl.lm, vcov = vcovHC(appl.lm, "HC1"))
+```
+
+```{r}
+strbx.lm <- lm(strbx$EPS~strbx$`Value (in $m)`)
+summary(strbx.lm )
+
+#plotting 
+plot( strbx$`Value (in $m)`, strbx$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Starbucks", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(strbx.lm)
+
+
+bptest(strbx.lm)
+coeftest(strbx.lm, vcov = vcovHC(strbx.lm, "HC1"))
+
+
+```
+
+```{r}
+amzn.lm <- lm(amzn$EPS~amzn$`Value (in $m)`)
+summary(amzn.lm)
+
+#plotting 
+plot( amzn$`Value (in $m)`, amzn$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Amazon", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(amzn.lm)
+
+
+bptest(amzn.lm)
+coeftest(amzn.lm, vcov = vcovHC(amzn.lm, "HC1"))
+```
+
+```{r}
+ibm.lm <- lm(ibm$EPS~ibm$`Value (in $m)`)
+summary(ibm.lm)
+
+#plotting 
+plot( ibm$`Value (in $m)`,ibm$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/IBM", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(ibm.lm)
+
+
+bptest(ibm.lm)
+coeftest(ibm.lm, vcov = vcovHC(ibm.lm, "HC1"))
+```
+
+```{r}
+goog.lm <- lm(goog$EPS~ goog$`Value (in $m)`)
+summary(goog.lm)
+#plotting 
+plot( goog$`Value (in $m)`,goog$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Google", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(goog.lm)
+
+
+bptest(goog.lm)
+coeftest(goog.lm, vcov = vcovHC(goog.lm, "HC1"))
+```
+
+```{r}
+mcrsft.lm <- lm(mcrsft$EPS~ mcrsft$`Value (in $m)`)
+summary(mcrsft.lm)
+
+#plotting 
+plot( mcrsft$`Value (in $m)`,mcrsft$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Microsoft", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(mcrsft.lm)
+
+
+bptest(mcrsft.lm)
+coeftest(mcrsft.lm, vcov = vcovHC(mcrsft.lm, "HC1"))
+```
+
+```{r}
+mcdon.lm <- lm(mcdon$EPS~mcdon$`Value (in $m)`)
+summary(mcdon.lm )
+
+#plotting 
+plot(mcdon$`Value (in $m)`,mcdon$EPS,pch = 16, cex = 1.3, col = "blue", main = "EPS PLOTTED AGAINST BRAND VALUE/Microsoft", xlab = "Brand Value",
+      ylab = "Earnings per share")
+abline(mcdon.lm)
+
+bptest(mcdon.lm)
+coeftest(mcdon.lm, vcov = vcovHC(mcdon.lm, "HC1"))
+```
+
+Step 3.
+Pooled OLS
+```{r}
+#making panel data
+companies <- c(rep("Apple", 14),rep("Starbucks", 14), rep("Amazon", 14), rep("IBM", 14), rep("Google", 14), rep("Microsoft", 14),rep("McDonald's", 14))
+years <- c(rep(2006:2019,7) )
+value.panel <- c(aapl$`Value (in $m)`, strbx$`Value (in $m)`, amzn$`Value (in $m)`, ibm$`Value (in $m)`, goog$`Value (in $m)`, mcrsft$`Value (in $m)`, mcdon$`Value (in $m)`)
+eps.panel <- c(aapl$EPS, strbx$EPS, amzn$EPS, ibm$EPS, goog$EPS, mcrsft$EPS, mcdon$EPS)
+panel <- data.frame(years,companies ,value.panel, eps.panel )
+show(panel)
+```
+```{r}
+
+scatterplot(eps.panel~years|companies, boxplots=FALSE, smooth=TRUE, data=panel)
+
+scatterplot(value.panel~years|companies, boxplots=FALSE, smooth=TRUE, data=panel)
+
+```
+
+
+Pooled OLS
+```{r}
+brand.pooled <- plm(panel$eps.panel~panel$value.panel, data=panel,
+                  model="pooling", effect="individual")
+summary(brand.pooled)
+bptest(brand.pooled)
+
+#robust SE
+coeftest(brand.pooled, vcov=vcovHC(brand.pooled, method="arellano"))
+
+```
+Fixed effect
+```{r}
+brand.fe <- plm(eps.panel~value.panel, data=panel,
+                model="within")
+summary(brand.fe)
+
+#corrected for heteroskedasticity
+coeftest(brand.fe, vcov=vcovHC(brand.fe, method="arellano"))
+
+```
+
+FE using dummy variables
+```{r}
+brand.fe.dummy <- lm(panel$eps.panel~panel$value.panel+factor(panel$companies)-1 , data=panel)
+summary(brand.fe.dummy)
+```
+
+
+Tests
+```{r}
+pFtest(brand.fe , brand.pooled)
+#p value is high so pooled ols is better
+
+plmtest(brand.pooled, type=c("bp"))
+#random effect is needed
+
+pbgtest(brand.fe)
+#no serial correlation
+```
+
+Random Effect
+```{r}
+brand.re <- plm(eps.panel~value.panel, data=panel, 
+                model="random") 
+print('usual')
+summary(brand.re)
+
+print('robust')
+coeftest(brand.re, vcov=vcovHC(brand.re, type = "HC1"))
+
+```
+First difference
+```{r}
+inv.fd <- plm(eps.panel~value.panel, data=panel, model="fd", effect="individual") 
+summary(inv.fd)
+coeftest(brand.re, vcov=vcovHC(brand.re, type = "HC1"))
+```
+
+Hausmann Test
+```{r}
+phtest(brand.re, brand.fe)
+#Random Effects are better
+```
+
+
+
+
+
+
